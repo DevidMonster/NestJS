@@ -1,8 +1,8 @@
 import {
-  MiddlewareConsumer,
   Module,
-  NestModule,
-  RequestMethod,
+  // MiddlewareConsumer,
+  // NestModule,
+  // RequestMethod,
 } from '@nestjs/common';
 import { ConfigModule } from '@nestjs/config';
 import { TypeOrmModule } from '@nestjs/typeorm';
@@ -12,9 +12,9 @@ import { Post } from './typeorm/entities/Post';
 import { PostsModule } from './posts/posts.module';
 import { UsersModule } from './users/users.module';
 import { CommentsModule } from './comments/comments.module';
-import { AuthenticationMiddleware } from './common/middleware/authentication/authentication.middleware';
 import { AuthModule } from './auth/auth.module';
-import { AuthorizationMiddleware } from './common/middleware/authorization/authorization.middleware';
+// import { AuthenticationMiddleware } from './common/middleware/authentication/authentication.middleware';
+// import { AuthorizationMiddleware } from './common/middleware/authorization/authorization.middleware';
 
 @Module({
   imports: [
@@ -38,33 +38,34 @@ import { AuthorizationMiddleware } from './common/middleware/authorization/autho
     AuthModule,
   ],
   controllers: [],
-  providers: [AuthorizationMiddleware],
+  providers: [], //AuthorizationMiddleware
 })
-export class AppModule implements NestModule {
-  configure(consumer: MiddlewareConsumer) {
-    consumer
-      .apply(AuthenticationMiddleware)
-      .forRoutes(
-        { path: 'users', method: RequestMethod.GET },
-        { path: 'users/:id', method: RequestMethod.GET },
-        { path: 'users', method: RequestMethod.POST },
-        { path: 'users/:id', method: RequestMethod.PATCH },
-        { path: 'posts', method: RequestMethod.POST },
-        { path: 'posts/:id', method: RequestMethod.PATCH },
-        { path: 'posts/:id', method: RequestMethod.DELETE },
-        { path: 'comments', method: RequestMethod.POST },
-        { path: 'comments/:id', method: RequestMethod.DELETE },
-      )
-      .apply(AuthorizationMiddleware)
-      .forRoutes(
-        { path: 'users', method: RequestMethod.GET },
-        { path: 'users/:id', method: RequestMethod.GET },
-        { path: 'users', method: RequestMethod.POST },
-        { path: 'users/:id', method: RequestMethod.PATCH },
-        { path: 'posts', method: RequestMethod.POST },
-        { path: 'posts/:id', method: RequestMethod.PATCH },
-        { path: 'posts/:id', method: RequestMethod.DELETE },
-        { path: 'comments/:id', method: RequestMethod.DELETE },
-      );
-  }
+//implements NestModule
+export class AppModule {
+  // configure(consumer: MiddlewareConsumer) {
+  // consumer
+  //   .apply(AuthenticationMiddleware)
+  //   .forRoutes(
+  //     { path: 'users', method: RequestMethod.GET },
+  //     { path: 'users/:id', method: RequestMethod.GET },
+  //     { path: 'users', method: RequestMethod.POST },
+  //     { path: 'users/:id', method: RequestMethod.PATCH },
+  //     { path: 'posts', method: RequestMethod.POST },
+  //     { path: 'posts/:id', method: RequestMethod.PATCH },
+  //     { path: 'posts/:id', method: RequestMethod.DELETE },
+  //     { path: 'comments', method: RequestMethod.POST },
+  //     { path: 'comments/:id', method: RequestMethod.DELETE },
+  //   )
+  //   .apply(AuthorizationMiddleware)
+  //   .forRoutes(
+  //     { path: 'users', method: RequestMethod.GET },
+  //     { path: 'users/:id', method: RequestMethod.GET },
+  //     { path: 'users', method: RequestMethod.POST },
+  //     { path: 'users/:id', method: RequestMethod.PATCH },
+  //     { path: 'posts', method: RequestMethod.POST },
+  //     { path: 'posts/:id', method: RequestMethod.PATCH },
+  //     { path: 'posts/:id', method: RequestMethod.DELETE },
+  //     { path: 'comments/:id', method: RequestMethod.DELETE },
+  //   );
+  // }
 }

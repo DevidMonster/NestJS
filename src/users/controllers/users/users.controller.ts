@@ -8,10 +8,17 @@ import {
   ParseIntPipe,
   UsePipes,
   ValidationPipe,
+  UseGuards,
 } from '@nestjs/common';
+import { Roles } from 'src/decorators/roles/roles.decorator';
+import { AuthenticationGuard } from 'src/guard/authentication/authentication.guard';
+import { AuthortizationGuard } from 'src/guard/authortization/authortization.guard';
+import { Role } from 'src/typeorm/role.enum';
 import { ISubmit } from 'src/users/dtos/user.dto';
 import { UsersService } from 'src/users/services/users/users.service';
 
+@Roles(Role.Admin)
+@UseGuards(AuthenticationGuard, AuthortizationGuard)
 @Controller('users')
 export class UsersController {
   constructor(private userService: UsersService) {}
