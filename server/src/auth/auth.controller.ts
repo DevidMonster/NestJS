@@ -42,12 +42,14 @@ export class AuthController {
     // await this.cartService.create({ userId: user.id });
     // return res.status(200).json(response);
     const userResponse = await this.firebaseService.userSignUp(userInfo);
-    return res.json(userResponse);
+    return res.status(200).json(userResponse);
   }
 
   @Post('login')
   @UsePipes(ValidationPipe)
   async SignIn(@Body() userInfo: SignInInput, @Res() res: Response) {
-    return await this.authService.login(userInfo, res);
+    // return await this.authService.login(userInfo, res);
+    const user = await this.firebaseService.userLogin(userInfo);
+    return res.status(200).json(user);
   }
 }

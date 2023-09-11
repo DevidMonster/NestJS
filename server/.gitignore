@@ -2,7 +2,7 @@
 /dist
 /node_modules
 .env
-/src/serviceAccountKey.json
+# /src/serviceAccountKey.json
 # Logs
 logs
 *.log

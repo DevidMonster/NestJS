@@ -1,5 +1,6 @@
 import { Injectable } from '@nestjs/common';
 import * as admin from 'firebase-admin';
+import { SignInInput } from 'src/auth/dto/signin.input';
 import { SignUpInput } from 'src/auth/dto/singup.input';
 
 @Injectable()
@@ -40,6 +41,17 @@ export class FirebaseService {
         emailVerified: false,
         disabled: false,
       });
+      return user;
+    } catch (error) {
+      throw new Error('Lỗi khi truy cập Firebase');
+    }
+  }
+
+  async userLogin(userInfo: SignInInput): Promise<any> {
+    try {
+      const user = await this.firebaseAdmin
+        .auth()
+        .getUserByEmail(userInfo.email);
       return user;
     } catch (error) {
       throw new Error('Lỗi khi truy cập Firebase');
