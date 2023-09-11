@@ -1,0 +1,273 @@
+# ------------------------------------------------------
+# THIS FILE WAS AUTOMATICALLY GENERATED (DO NOT MODIFY)
+# ------------------------------------------------------
+
+type CartItem {
+  id: ID!
+  cart: Cart!
+  product: Product!
+  quantity: Int!
+  createdAt: DateTime!
+}
+
+"""
+A date-time string at UTC, such as 2019-12-03T09:54:33Z, compliant with the date-time format.
+"""
+scalar DateTime
+
+type Cart {
+  id: ID!
+  user: User!
+  cartItem: [CartItem!]!
+}
+
+type OrderDetail {
+  id: ID!
+  product: Product!
+  productName: String!
+  productImage: String!
+  quantity: Int!
+  price: Int!
+  order: Order!
+}
+
+type Order {
+  id: ID!
+  user: User!
+  orderDate: DateTime!
+  userName: String!
+  shippingAddress: String!
+  phoneNumber: String!
+  status: String!
+  paymentMethod: String!
+  totalAmount: Int!
+  orderDetails: [OrderDetail!]!
+}
+
+type User {
+  id: ID!
+  userName: String!
+  email: String!
+  passWord: String!
+  phoneNumber: String!
+  avatar: String
+  role: String!
+  state: Boolean!
+  comments: [Comment!]!
+  cart: Cart!
+  orders: [Order!]!
+}
+
+type Comment {
+  id: ID!
+  user: User!
+  product: Product!
+  content: String!
+  createdAt: DateTime!
+}
+
+type Category {
+  id: ID!
+  name: String!
+  products: [Product!]
+}
+
+type Product {
+  id: ID!
+  name: String!
+  description: String!
+  price: Int!
+  quantity: Int!
+  image: String!
+  discount: Int!
+  comments: [Comment!]
+  category: Category
+  cartItems: [CartItem!]!
+  orderDetails: [OrderDetail!]!
+}
+
+type Rate {
+  """Example field (placeholder)"""
+  exampleField: Int!
+}
+
+type Post {
+  id: ID!
+  title: String!
+  subTitle: String
+  thumbnail: String
+  content: String!
+}
+
+type Query {
+  products: [Product!]!
+  product(id: Float!): Product!
+  users: [User!]!
+  user(id: Int!): User!
+  comments: [Comment!]!
+  comment(id: Float!): Comment!
+  rate(id: Int!): Rate!
+  posts: [Post!]!
+  post(id: Int!): Post!
+  categories: [Category!]!
+  category(id: Int!): Category!
+  cart(userId: Int!): Cart!
+  orders(userId: Int!): [Order!]!
+  order(id: Int!): Order!
+  orderDetails: [OrderDetail!]!
+  cartItems: [CartItem!]!
+  cartItem(id: Int!): CartItem!
+}
+
+type Mutation {
+  createProduct(createProductInput: CreateProductInput!): Product!
+  updateProduct(updateProductInput: UpdateProductInput!): Product!
+  removeProduct(id: Float!): Product!
+  createUser(createUserInput: CreateUserInput!): User!
+  updateUser(updateUserInput: UpdateUserInput!): User!
+  createComment(createCommentInput: CreateCommentInput!): Comment!
+  removeComment(id: Int!): Comment!
+  createRate(createRateInput: CreateRateInput!): Rate!
+  updateRate(updateRateInput: UpdateRateInput!): Rate!
+  removeRate(id: Int!): Rate!
+  createPost(createPostInput: CreatePostInput!): Post!
+  updatePost(updatePostInput: UpdatePostInput!): Post!
+  removePost(id: Int!): Post!
+  createCategory(createCategoryInput: CreateCategoryInput!): Category!
+  updateCategory(updateCategoryInput: UpdateCategoryInput!): Category!
+  removeCategory(id: Int!): Category!
+  createCart(createCartInput: CreateCartInput!): Cart!
+  removeCart(id: Int!): Cart!
+  createOrder(createOrderInput: CreateOrderInput!): Order!
+  updateOrder(updateOrderInput: UpdateOrderInput!): Order!
+  removeOrder(id: Int!): Order!
+  createOrderDetail(createOrderDetailInput: CreateOrderDetailInput!): OrderDetail!
+  createCartItem(createCartItemInput: CreateCartItemInput!): CartItem!
+  updateCartItem(updateCartItemInput: UpdateCartItemInput!): CartItem!
+  removeCartItem(id: Int!): CartItem!
+}
+
+input CreateProductInput {
+  id: Int!
+  name: String!
+  description: String!
+  price: Int!
+  quantity: Int!
+  image: String!
+  discount: Int!
+  categoryId: Int!
+}
+
+input UpdateProductInput {
+  id: Int
+  name: String!
+  description: String!
+  price: Int!
+  quantity: Int!
+  image: String!
+  discount: Int!
+  categoryId: Int!
+}
+
+input CreateUserInput {
+  id: Int!
+  userName: String!
+  email: String!
+  passWord: String!
+  phoneNumber: String!
+  avatar: String!
+  role: String!
+  state: Boolean!
+}
+
+input UpdateUserInput {
+  id: Int
+  userName: String!
+  email: String!
+  passWord: String!
+  phoneNumber: String!
+  avatar: String!
+  role: String!
+  state: Boolean!
+}
+
+input CreateCommentInput {
+  id: Float!
+  content: String!
+  userId: Float!
+  productId: Float!
+}
+
+input CreateRateInput {
+  """Example field (placeholder)"""
+  exampleField: Int!
+}
+
+input UpdateRateInput {
+  """Example field (placeholder)"""
+  exampleField: Int
+  id: Int!
+}
+
+input CreatePostInput {
+  title: String!
+  subTitle: String!
+  thumbnail: String!
+  content: String!
+}
+
+input UpdatePostInput {
+  title: String!
+  subTitle: String!
+  thumbnail: String!
+  content: String!
+  id: Float!
+}
+
+input CreateCategoryInput {
+  id: Float!
+  name: String!
+}
+
+input UpdateCategoryInput {
+  id: Float
+  name: String!
+}
+
+input CreateCartInput {
+  userId: Int!
+}
+
+input CreateOrderInput {
+  id: Float!
+  cartId: Int
+  orderId: Int
+  userId: Int!
+  userName: String!
+  shippingAddress: String!
+  phoneNumber: String!
+  paymentMethod: String!
+  totalAmount: Int!
+}
+
+input UpdateOrderInput {
+  id: Float!
+  status: String!
+}
+
+input CreateOrderDetailInput {
+  id: Float!
+  cartId: Int!
+  orderId: Int!
+}
+
+input CreateCartItemInput {
+  cartId: Int!
+  productId: Int!
+  quantity: Int!
+}
+
+input UpdateCartItemInput {
+  id: Int!
+  quantity: Int!
+}
