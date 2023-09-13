@@ -1,16 +1,29 @@
-import { Injectable, NotFoundException } from '@nestjs/common';
+import {
+  HttpException,
+  HttpStatus,
+  Injectable,
+  NotFoundException,
+} from '@nestjs/common';
 import { CreateOrderInput } from './dto/create-order.input';
 import { UpdateOrderInput } from './dto/update-order.input';
 import { Order } from './entities/order.entity';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
+import { User } from 'src/users/entities/user.entity';
 
 @Injectable()
 export class OrdersService {
-  constructor(@InjectRepository(Order) private order: Repository<Order>) {}
+  constructor(
+    @InjectRepository(Order) private order: Repository<Order>,
+    @InjectRepository(User) private user: Repository<User>,
+  ) {}
 
   async create(createOrderInput: CreateOrderInput): Promise<Order> {
+    const user = await this.user.findOne({
+      where: { id: createOrderInput.userId },
+    });
     const order = this.order.create({
+      user: user,
       userName: createOrderInput.userName,
       shippingAddress: createOrderInput.shippingAddress,
       phoneNumber: createOrderInput.phoneNumber,
@@ -55,6 +68,20 @@ export class OrdersService {
     const order = await this.order.findOne({ where: { id } });
 
     if (!order) throw new NotFoundException('No order found');
+
+    //order đã cancel không thể cập nhật lại
+    if (order.status === 'canceled')
+      throw new HttpException(
+        'Order has been canceled',
+        HttpStatus.NOT_ACCEPTABLE,
+      );
+
+    //order đã complet không thể cập nhật lại
+    if (order.status === 'completed')
+      throw new HttpException(
+        'Order has been completed',
+        HttpStatus.NOT_ACCEPTABLE,
+      );
 
     order.status = updateOrderInput.status;
 

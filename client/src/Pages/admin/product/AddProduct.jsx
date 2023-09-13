@@ -1,16 +1,19 @@
 import { UploadOutlined } from "@ant-design/icons";
-import { Button, Form, Input, InputNumber, Select, Upload, message } from "antd";
+import { Button, Form, Input, InputNumber, Select, Spin, Upload, message } from "antd";
 import { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import TextEditor from "../../../components/TextEditor";
 import { useCreateProductMutation } from "../../../services/product.service";
 import { useFetchAllCategoriesQuery } from "../../../services/category.service";
+import { useUploadFileMutation } from "../../../services/upload.service";
 const { Option } = Select
 function AddProduct() {
     const [createProduct] = useCreateProductMutation()
     const { data: categories, isLoading } = useFetchAllCategoriesQuery('?_full')
+    const [uploadImage] = useUploadFileMutation()
     const navigate = useNavigate()
     const [fileList, setFileList] = useState([])
+    const [loading, setLoading] = useState(false)
 
     const dummyRequest = ({ onSuccess }) => {
         setTimeout(() => {
@@ -36,10 +39,28 @@ function AddProduct() {
     }
 
 
-    const onFinish = (values) => {
-        createProduct({ ...values, image: fileList.length > 0 ? fileList[0].thumbUrl : undefined });
+    const onFinish = async (values) => {
+        let imageUrl;
+        setLoading(true)
+        if (fileList.length > 0) {
+          const formData = new FormData();
+          formData.append("image", fileList[0].originFileObj); // Lấy file gốc từ fileList
+    
+          try {
+            const response = await uploadImage(formData);
+            imageUrl = response.data.imageUrl;
+          } catch (error) {
+            console.error("Error uploading image:", error);
+          }
+        }
+        // console.log(imageUrl);
+        await createProduct({ ...values, image: fileList.length > 0 ? imageUrl : undefined }).unwrap();
+        setLoading(false)
         navigate('/admin/products')
     };
+    if(loading) {
+        return <Spin/>
+    }
     return <div>
         <h1>Create New</h1>
         <Form

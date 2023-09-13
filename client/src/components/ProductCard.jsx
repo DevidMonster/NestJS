@@ -1,10 +1,18 @@
 /* eslint-disable react/prop-types */
-import { Card, Col, Row, Image, Button, Popover } from 'antd';
+import { Card, Col, Row, Image, Button, Popover, Segmented } from 'antd';
 import { Link } from 'react-router-dom';
 import { CommentOutlined } from '@ant-design/icons';
-import PostComment from './ProductComment';
+import ProductComment from './ProductComment';
+import { useState } from 'react';
+import ProductRate from './ProductRate';
 
 const ProductCard = ({ data = [] }) => {
+    const [segmented, setSegmented] = useState('Comments')
+
+    const handleChange = (value) => {
+        setSegmented(value)
+    }
+
     if (data.length > 0) {
         return (
             <Row gutter={16}>
@@ -33,15 +41,26 @@ const ProductCard = ({ data = [] }) => {
                         </Card>
                         <Popover
                             placement="right"
-                            title={'Comment'}
-                            content={<PostComment style={{ maxWidth: '400px', maxHeight: 'calc(100vh - 230px)' }} productId={product.id} />}>
+                            title={segmented}
+                            trigger={'click'}
+                            content={
+                                <div style={{ maxWidth: '350px', maxHeight: 'calc(100vh - 230px)', minHeight: '200px' }}>
+                                    <Segmented style={{ margin: '10px 0' }} onChange={handleChange} value={segmented} options={['Comments', 'Rates']} />
+                                    {segmented === 'Comments' ?
+                                        <ProductComment productId={product.id} />
+                                        :
+                                        <ProductRate productId={product.id}></ProductRate>
+                                    }
+
+                                </div>}>
                             <Button style={{ position: 'absolute', bottom: '50%', right: '15px' }} size='large' shape='circle' danger><CommentOutlined /></Button>
                         </Popover>
                     </Col>
-                ))}
-            </Row>
+                ))
+                }
+            </Row >
         )
-    } else { 
+    } else {
         return <div>
             <h1 style={{ textAlign: 'center' }}>No Data</h1>
         </div>

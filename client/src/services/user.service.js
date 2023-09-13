@@ -10,7 +10,7 @@ const userApi = createApi({
 
   endpoints: (builder) => ({
     fetchAll: builder.query({
-      query: (option = '') => {
+      query: () => {
         return {
           url: "/",
           method: "GET",
@@ -20,22 +20,22 @@ const userApi = createApi({
       providesTags: ["user"],
     }),
     fetchOne: builder.query({
-        query: (id) => '/' + id,
-        providesTags: ["user"],
+      query: (id) => ({ url: "/" + id, credentials: "include" }),
+      providesTags: ["user"],
     }),
     createUser: builder.mutation({
-        query: (info) => {
-          return {
-            url: "/",
-            method: "POST",
-            body: info,
-            credentials: "include",
-          };
-        },
-        invalidatesTags: ["user"],
-      }),
+      query: (info) => {
+        return {
+          url: "/",
+          method: "POST",
+          body: info,
+          credentials: "include",
+        };
+      },
+      invalidatesTags: ["user"],
+    }),
     updateUser: builder.mutation({
-      query: ({id, info}) => {
+      query: ({ id, info }) => {
         return {
           url: "/" + id,
           method: "PATCH",
@@ -44,7 +44,7 @@ const userApi = createApi({
         };
       },
       invalidatesTags: ["user"],
-    })
+    }),
   }),
 });
 
@@ -52,6 +52,6 @@ export const {
   useFetchAllQuery,
   useFetchOneQuery,
   useCreateUserMutation,
-  useUpdateUserMutation
+  useUpdateUserMutation,
 } = userApi;
 export default userApi;

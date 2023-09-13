@@ -1,60 +1,98 @@
 import { Injectable } from '@nestjs/common';
 import * as admin from 'firebase-admin';
-import { SignInInput } from 'src/auth/dto/signin.input';
-import { SignUpInput } from 'src/auth/dto/singup.input';
+import * as fs from 'fs';
 
 @Injectable()
 export class FirebaseService {
-  private readonly firebaseAdmin: admin.app.App;
-
   constructor() {
-    // eslint-disable-next-line @typescript-eslint/no-var-requires
-    const serviceAccount = require('../serviceAccountKey.json') || {};
-    if (!admin.apps.length) {
-      this.firebaseAdmin = admin.initializeApp({
+    const connectFireBase = async () => {
+      const serviceAccount = (await import('../serviceAccountKey.json')) || {};
+      admin.initializeApp({
         credential: admin.credential.cert(serviceAccount),
+        storageBucket: 'cloud-app-b7625.appspot.com',
       });
-    } else {
-      this.firebaseAdmin = admin.app();
-    }
+    };
+
+    connectFireBase();
   }
 
-  getAdmin(): admin.app.App {
-    return this.firebaseAdmin;
+  // Hàm lấy ảnh từ Firebase Storage
+  async getImageFromFirebaseStorage(filename: string) {
+    const bucket = admin.storage().bucket();
+
+    const file = bucket.file(`product_images/${filename}`); // Thay thế đường dẫn tới tệp ảnh
+
+    // Tải ảnh về dưới dạng URL
+    const [url] = await file.getSignedUrl({
+      action: 'read',
+      expires: '03-01-2500',
+    });
+
+    return url;
   }
 
-  async getUsers(): Promise<any> {
+  async uploadImage(filePath: string, destination: string): Promise<string> {
     try {
-      // Ví dụ: Lấy danh sách người dùng
-      const listUsers = await this.firebaseAdmin.auth().listUsers();
-      return listUsers;
-    } catch (error) {
-      throw new Error('Lỗi khi truy cập Firebase');
-    }
-  }
+      const bucket = admin.storage().bucket();
+      const file = bucket.file('product_images/' + destination);
 
-  async userSignUp(userInfo: SignUpInput): Promise<any> {
-    try {
-      const user = await this.firebaseAdmin.auth().createUser({
-        email: userInfo.email,
-        password: userInfo.passWord,
-        emailVerified: false,
-        disabled: false,
+      // Đọc dữ liệu từ tệp cần upload
+      const fileStream = fs.createReadStream(filePath);
+
+      // Tạo stream để upload lên Firebase Storage
+      const uploadStream = file.createWriteStream({
+        metadata: {
+          contentType: 'image/jpeg', // Điều chỉnh kiểu dữ liệu tương ứng
+        },
       });
-      return user;
+
+      await new Promise<void>((resolve, reject) => {
+        uploadStream
+          .on('finish', () => {
+            resolve();
+          })
+          .on('error', (err: any) => {
+            reject(err);
+          });
+
+        // Pipe dữ liệu từ tệp đến stream upload
+        fileStream.pipe(uploadStream);
+      });
+
+      return await this.getImageFromFirebaseStorage(destination);
     } catch (error) {
-      throw new Error('Lỗi khi truy cập Firebase');
+      throw new Error('Lỗi khi upload file: ' + error);
     }
   }
 
-  async userLogin(userInfo: SignInInput): Promise<any> {
-    try {
-      const user = await this.firebaseAdmin
-        .auth()
-        .getUserByEmail(userInfo.email);
-      return user;
-    } catch (error) {
-      throw new Error('Lỗi khi truy cập Firebase');
-    }
-  }
+  // async uploadImage(file: Express.Multer.File): Promise<string> {
+  //   try {
+  //     const bucket = admin.storage().bucket();
+  //     const folderName = 'product_images';
+  //     const storageFileName = `${folderName}/${Date.now()}_${
+  //       file.originalname
+  //     }`;
+  //     const fileStream = bucket.file(storageFileName).createWriteStream({
+  //       metadata: {
+  //         contentType: file.mimetype,
+  //       },
+  //     });
+
+  //     fileStream.on('error', (error) => {
+  //       console.error('Error uploading file to Firebase Storage:');
+  //       throw error;
+  //     });
+
+  //     fileStream.on('finish', () => {
+  //       console.log('File uploaded to Firebase Storage successfully.');
+  //     });
+
+  //     fileStream.end(file.buffer);
+
+  //     // Trả về URL của tệp vừa tải lên
+  //     return `https://storage.googleapis.com/${bucket.name}/${storageFileName}`;
+  //   } catch (error) {
+  //     throw new Error('Lỗi khi upload file');
+  //   }
+  // }
 }

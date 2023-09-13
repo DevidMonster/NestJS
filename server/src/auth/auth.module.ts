@@ -6,11 +6,10 @@ import { Cart } from 'src/cart/entities/cart.entity';
 import { User } from 'src/users/entities/user.entity';
 import { CartService } from 'src/cart/cart.service';
 import { CartItem } from 'src/cart-items/entities/cart-item.entity';
-import { FirebaseService } from 'src/firebase/firebase.service';
 
 @Module({
   imports: [TypeOrmModule.forFeature([User, Cart, CartItem])],
-  providers: [AuthService, CartService, FirebaseService],
+  providers: [AuthService, CartService],
   controllers: [AuthController],
 })
 export class AuthModule {}

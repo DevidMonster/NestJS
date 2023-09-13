@@ -24,11 +24,17 @@ import { CartItem } from './cart-items/entities/cart-item.entity';
 import { Order } from './orders/entities/order.entity';
 import { OrderDetail } from './order-details/entities/order-detail.entity';
 import { FirebaseService } from './firebase/firebase.service';
+import { FirebaseController } from './firebase/firebase.controller';
+import { MulterModule } from '@nestjs/platform-express';
+import { Rate } from './rate/entities/rate.entity';
 
 @Module({
   imports: [
     ConfigModule.forRoot({
       envFilePath: '.env',
+    }),
+    MulterModule.register({
+      dest: './uploads',
     }),
     TypeOrmModule.forRoot({
       type: 'mysql',
@@ -49,6 +55,7 @@ import { FirebaseService } from './firebase/firebase.service';
         CartItem,
         Order,
         OrderDetail,
+        Rate,
       ],
     }),
     GraphQLModule.forRoot<ApolloDriverConfig>({
@@ -67,7 +74,7 @@ import { FirebaseService } from './firebase/firebase.service';
     OrderDetailsModule,
     CartItemsModule,
   ],
-  controllers: [],
+  controllers: [FirebaseController],
   providers: [FirebaseService],
   exports: [FirebaseService],
 })

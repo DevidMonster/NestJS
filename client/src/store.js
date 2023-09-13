@@ -4,7 +4,9 @@ import productReducer from "./services/product.service";
 import commentReducer from "./services/comment.service";
 import authReducer from "./services/auth.service";
 import userReducer from "./services/user.service";
+import uploadReducer from "./services/upload.service";
 import orderReducer from "./services/order.service";
+import rateReducer from "./services/rate.service";
 import cateReducer from "./services/category.service";
 import cartReducer from "./services/cart.service";
 import authSlice from "./slices/authSlice";
@@ -18,7 +20,9 @@ const store = configureStore({
     [userReducer.reducerPath]: userReducer.reducer,
     [commentReducer.reducerPath]: commentReducer.reducer,
     [productReducer.reducerPath]: productReducer.reducer,
+    [uploadReducer.reducerPath]: uploadReducer.reducer,
     [orderReducer.reducerPath]: orderReducer.reducer,
+    [rateReducer.reducerPath]: rateReducer.reducer,
     [cartReducer.reducerPath]: cartReducer.reducer,
     [cateReducer.reducerPath]: cateReducer.reducer,
   },
@@ -27,11 +31,13 @@ const store = configureStore({
       postReducer.middleware,
       commentReducer.middleware,
       productReducer.middleware,
+      uploadReducer.middleware,
       authReducer.middleware,
       userReducer.middleware,
       cateReducer.middleware,
       cartReducer.middleware,
       orderReducer.middleware,
+      rateReducer.middleware,
     ]),
 });
 

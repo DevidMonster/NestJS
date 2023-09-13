@@ -33,4 +33,8 @@ export class OrderDetail {
   @Field(() => Order)
   @ManyToOne(() => Order, (order) => order.orderDetails)
   order: Order;
+
+  @Field()
+  @Column({ default: false })
+  rated: boolean;
 }

@@ -13,6 +13,7 @@ import { Not, Repository } from 'typeorm';
 import { CreateProductInput } from './dto/create-product.input';
 import { UpdateProductInput } from './dto/update-product.input';
 import { Category } from 'src/categories/entities/category.entity';
+import { Rate } from 'src/rate/entities/rate.entity';
 
 @Injectable()
 export class ProductsService {
@@ -21,6 +22,7 @@ export class ProductsService {
     private readonly product: Repository<Product>,
     @InjectRepository(Comment) private comment: Repository<Comment>,
     @InjectRepository(Category) private category: Repository<Category>,
+    @InjectRepository(Rate) private rate: Repository<Rate>,
   ) {}
 
   async create(createProductInput: CreateProductInput): Promise<Product> {
@@ -54,7 +56,7 @@ export class ProductsService {
     }
     const products = await this.product.find({
       where: whereClause,
-      relations: { comments: true, category: true },
+      relations: { comments: true, rates: true, category: true },
     });
 
     return products;
@@ -63,7 +65,7 @@ export class ProductsService {
   async findOne(id: number): Promise<Product> {
     const product = this.product.findOne({
       where: { id },
-      relations: { comments: true, category: true },
+      relations: { comments: true, rates: true, category: true },
     });
 
     if (!product) {
@@ -89,7 +91,7 @@ export class ProductsService {
 
     const productUpdated = await this.product.findOne({
       where: { id },
-      relations: { comments: true, category: true },
+      relations: { comments: true, rates: true, category: true },
     });
 
     return productUpdated;
@@ -100,10 +102,10 @@ export class ProductsService {
       where: { id },
       relations: {
         comments: true,
+        rates: true,
         category: true,
       },
     });
-    console.log(product);
 
     if (!product) {
       throw new HttpException('No post found', HttpStatus.NOT_FOUND);
@@ -111,6 +113,10 @@ export class ProductsService {
 
     for (const comment of product.comments!) {
       await this.comment.remove(comment);
+    }
+
+    for (const rate of product.rates!) {
+      await this.rate.remove(rate);
     }
 
     //Xóa sản phẩm trong category

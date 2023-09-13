@@ -20,7 +20,8 @@ const categoryApi = createApi({
                 return {
                     url: '/',
                     method: 'POST',
-                    body: cate
+                    body: cate,
+                    credentials: "include",
                 }
             },
             invalidatesTags: ['category']
@@ -30,7 +31,8 @@ const categoryApi = createApi({
                 return {
                     url: '/'+id,
                     method: 'PATCH',
-                    body: cate
+                    body: cate,
+                    credentials: "include",
                 }
             },
             invalidatesTags: ['category']

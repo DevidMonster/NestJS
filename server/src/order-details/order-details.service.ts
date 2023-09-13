@@ -6,6 +6,7 @@ import { Repository } from 'typeorm';
 import { Order } from 'src/orders/entities/order.entity';
 import { Cart } from 'src/cart/entities/cart.entity';
 import { Product } from 'src/products/entities/product.entity';
+import { CartItem } from 'src/cart-items/entities/cart-item.entity';
 
 @Injectable()
 export class OrderDetailsService {
@@ -13,6 +14,7 @@ export class OrderDetailsService {
     @InjectRepository(OrderDetail) private orderDetail: Repository<OrderDetail>,
     @InjectRepository(Order) private order: Repository<Order>,
     @InjectRepository(Cart) private cart: Repository<Cart>,
+    @InjectRepository(CartItem) private cartItem: Repository<CartItem>,
     @InjectRepository(Product) private product: Repository<Product>,
   ) {}
   async create(
@@ -43,12 +45,10 @@ export class OrderDetailsService {
         quantity: product.quantity - cartItem.quantity,
       });
 
+      await this.cartItem.remove(cartItem);
+
       await this.orderDetail.save(orderDetail);
     }
-
-    cart.cartItem = [];
-
-    await this.cart.save(cart);
 
     const orderDetails = await this.orderDetail.find({
       where: { order: { id: createOrderDetailInput.orderId } },

@@ -8,6 +8,7 @@ import {
   Patch,
   Post,
   Query,
+  UseGuards,
   UsePipes,
   ValidationPipe,
 } from '@nestjs/common';
@@ -16,6 +17,10 @@ import { IResponse } from 'src/types/response';
 import { Category } from './entities/category.entity';
 import { UpdateCategoryInput } from './dto/update-category.input';
 import { CreateCategoryInput } from './dto/create-category.input';
+import { Roles } from 'src/decorators/roles/roles.decorator';
+import { Role } from 'src/types/role.enum';
+import { AuthenticationGuard } from 'src/guard/authentication/authentication.guard';
+import { AuthortizationGuard } from 'src/guard/authortization/authortization.guard';
 
 @Controller('categories')
 export class CategoriesController {
@@ -37,6 +42,8 @@ export class CategoriesController {
     return { message: 'Category found', data: catogory };
   }
 
+  @Roles(Role.Admin)
+  @UseGuards(AuthenticationGuard, AuthortizationGuard)
   @Post()
   @UsePipes(ValidationPipe)
   async createCategory(
@@ -46,6 +53,8 @@ export class CategoriesController {
     return { message: 'Category created', data: category };
   }
 
+  @Roles(Role.Admin)
+  @UseGuards(AuthenticationGuard, AuthortizationGuard)
   @Patch(':id')
   @UsePipes(ValidationPipe)
   async updateCategory(
@@ -56,6 +65,8 @@ export class CategoriesController {
     return { message: 'Category updated', data: category };
   }
 
+  @Roles(Role.Admin)
+  @UseGuards(AuthenticationGuard, AuthortizationGuard)
   @Delete(':id')
   async deleteCategory(
     @Param('id', ParseIntPipe) id: number,

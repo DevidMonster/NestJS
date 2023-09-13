@@ -1,18 +1,24 @@
 import { useNavigate, useParams } from "react-router-dom";
 import { useEffect, useState } from "react";
 import { useFetchOneQuery } from "../services/product.service";
-import { Button, Image, Input, Spin, message } from "antd";
+import { Button, Divider, Image, Input, List, Segmented, Spin, message } from "antd";
 import ProductComment from "../components/ProductComment";
 import { useAddItemMutation } from "../services/cart.service";
 import { useSelector } from "react-redux";
+import ProductRate from "../components/ProductRate";
 
 function ProductDetail() {
     const { id } = useParams()
     const user = useSelector(state => state.authReducer.user)
     const [quantity, setQuantity] = useState(1)
+    const [segmented, setSegmented] = useState('Comments')
     const { data, isLoading } = useFetchOneQuery(id)
     const [addItem] = useAddItemMutation()
     const navigate = useNavigate()
+
+    const handleChange = (value) => {
+        setSegmented(value)
+    }
 
     const addItemToCart = async (id) => {
         try {
@@ -76,10 +82,21 @@ function ProductDetail() {
                         <Button onClick={() => addItemToCart(data.data.id)} style={{ margin: "40px 0" }} type="default" danger size="large">Add to card</Button>
                     </div>
                 </div>
+                <List
+                    header={<></>}
+                    footer={<></>}
+                >
+                    <Divider orientation="left" orientationMargin="0"><h2>Description</h2></Divider>
+                    <p dangerouslySetInnerHTML={{ __html:  data.data?.description}}>
+                    </p>
+                </List>
                 <div>
-                    <hr />
-                    <h1>Comment</h1>
-                    <ProductComment productId={data?.data.id}></ProductComment>
+                    <Segmented style={{ margin: '10px 0' }} value={segmented} onChange={handleChange} options={['Comments', 'Rates']} />
+                    {segmented === 'Comments' ? 
+                        <ProductComment productId={data?.data.id}></ProductComment>
+                    :
+                        <ProductRate productId={data?.data.id}></ProductRate>    
+                    }
                 </div>
 
             </div>

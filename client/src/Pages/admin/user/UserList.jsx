@@ -46,6 +46,11 @@ const UserList = () => {
             key: 'phoneNumber',
         },
         {
+            title: 'Address',
+            dataIndex: 'address',
+            key: 'address',
+        },
+        {
             title: 'Role',
             dataIndex: 'role',
             key: 'role',

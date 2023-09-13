@@ -12,6 +12,7 @@ import { Comment } from 'src/comments/entities/comment.entity';
 import { Category } from 'src/categories/entities/category.entity';
 import { CartItem } from 'src/cart-items/entities/cart-item.entity';
 import { OrderDetail } from 'src/order-details/entities/order-detail.entity';
+import { Rate } from 'src/rate/entities/rate.entity';
 
 @Entity()
 @ObjectType()
@@ -60,4 +61,8 @@ export class Product extends BaseEntity {
   @Field(() => [OrderDetail])
   @OneToMany(() => OrderDetail, (orderDetail) => orderDetail.product)
   orderDetails: OrderDetail[];
+
+  @Field(() => [Rate])
+  @OneToMany(() => Rate, (rate) => rate.product)
+  rates: Rate[];
 }

@@ -33,6 +33,10 @@ export class CreateUserInput {
 
   @Field()
   @IsString()
+  address?: string;
+
+  @Field()
+  @IsString()
   avatar?: string;
 
   @Field()

@@ -1,17 +1,44 @@
-import { useParams } from "react-router-dom";
+import { useNavigate, useParams } from "react-router-dom";
 import { useFetchByIdQuery, useRemoveItemMutation, useUpdateItemMutation } from "../services/cart.service";
-import { Button, Image, InputNumber, Popconfirm, Space, Table, message } from "antd";
+import { Form, Button, Image, Input, InputNumber, Popconfirm, Space, Table, message, Select } from "antd";
+import { useSelector } from "react-redux";
+import { useEffect, useState } from "react";
+import { useCreateOrderMutation } from "../services/order.service";
 
 function CartPage() {
     const { id } = useParams();
+    const user = useSelector((state) => state.authReducer.user)
     const { data, isLoading } = useFetchByIdQuery(id)
     const [removeItem] = useRemoveItemMutation()
+    const [createOrder] = useCreateOrderMutation()
+    const [totalPrice, setTotalPrice] = useState(0)
     const [updateItem] = useUpdateItemMutation()
+    const [form] = Form.useForm();
+    const navigate = useNavigate()
+
+    useEffect(() => {
+        if (!isLoading && data?.data) {
+            const cartItem = data?.data?.cartItem
+
+            const totalPrice = cartItem.reduce((total, {product}) => {
+                return total + product.price; // Giả sử sản phẩm có trường 'price' để lấy giá trị giá sản phẩm
+            }, 0); // 0 là giá trị khởi tạo của tổng
+
+            setTotalPrice(totalPrice);
+        }
+        if (user && Object.keys(user).length > 0) {
+            form.setFieldsValue({
+                userName: user.userName,
+                shippingAddress: user.address,
+                phoneNumber: user.phoneNumber,
+            })
+        }
+    }, [user, data])
 
     const updateItemInCart = (id, value) => {
         updateItem({ id, data: { quantity: value } })
     }
-    
+
     const confirm = (id) => {
         removeItem(id)
     }
@@ -43,7 +70,7 @@ function CartPage() {
             dataIndex: 'quantity',
             key: 'quantity',
             render: (_, record) => (
-                <InputNumber onChange={(value) => updateItemInCart(record.id, value)} value={record.quantity} min={0} max={record.product.quantity}/>
+                <InputNumber onChange={(value) => updateItemInCart(record.id, value)} value={record.quantity} min={0} max={record.product.quantity} />
             ),
             width: 100
         },
@@ -86,11 +113,68 @@ function CartPage() {
         },
     ];
 
+    const onFinish = (values) => {
+        if(data?.data?.cartItem.length > 0) {
+            createOrder({ ...values, userId: user?.id, cartId: data?.data.id, totalAmount: totalPrice})
+            navigate('/')
+        } else {
+            message.error('No items to create order')
+        }
+    };
+
     return <div>
         <h1>Your items</h1>
-        <Table pagination={{ pageSize: 5 }} loading={isLoading} columns={columns} dataSource={data?.data?.cartItem || []} />
+        <Table pagination={{ pageSize: 5 }} loading={isLoading} columns={columns} dataSource={data?.data?.cartItem || []}/>
+        <p><b>Total:</b> {totalPrice}VNĐ</p>
         <div>
-            
+            <Form
+                form={form}
+                style={{ width: '70%', margin: '0 auto' }}
+                layout="vertical"
+                initialValues={{ remember: true }}
+                onFinish={onFinish}
+            >
+                <Form.Item
+                    label="User Name"
+                    name="userName"
+                    rules={[{ required: true, message: 'Please input user name!' }]}
+                    hasFeedback
+                >
+                    <Input />
+                </Form.Item>
+                <Form.Item
+                    label="Shipping Address"
+                    name="shippingAddress"
+                    rules={[{ required: true, message: 'Please input shipping address!' }]}
+                    hasFeedback
+                >
+                    <Input />
+                </Form.Item>
+                <Form.Item
+                    label="Phone Number"
+                    name="phoneNumber"
+                    rules={[{ required: true, message: 'Please input phone number!' }]}
+                    hasFeedback
+                >
+                    <Input />
+                </Form.Item>
+                <Form.Item
+                    label="Payment Method"
+                    name="paymentMethod"
+                    rules={[{ required: true, message: 'Please choose Payment Method' }]}
+                    hasFeedback
+                >
+                    <Select value={'cash_on_delivery'}>
+                        <Select.Option value={'cash_on_delivery'}>Cash On Delivery</Select.Option>
+                        <Select.Option value={'bank_transfer'}>Bank Transfer</Select.Option>
+                    </Select>
+                </Form.Item>
+                <Form.Item style={{ margin: '20px 0' }}>
+                    <Button type="primary" htmlType="submit">
+                        Order
+                    </Button>
+                </Form.Item>
+            </Form>
         </div>
     </div>
 }

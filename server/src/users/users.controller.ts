@@ -8,6 +8,7 @@ import {
   ParseIntPipe,
   UsePipes,
   ValidationPipe,
+  UseGuards,
 } from '@nestjs/common';
 import { UsersService } from './users.service';
 import { IResponse } from 'src/types/response';
@@ -15,20 +16,23 @@ import { User } from './entities/user.entity';
 import { CreateUserInput } from './dto/create-user.input';
 import { UpdateUserInput } from './dto/update-user.input';
 import { CartService } from 'src/cart/cart.service';
-import { FirebaseService } from 'src/firebase/firebase.service';
+import { Roles } from 'src/decorators/roles/roles.decorator';
+import { Role } from 'src/types/role.enum';
+import { AuthenticationGuard } from 'src/guard/authentication/authentication.guard';
+import { AuthortizationGuard } from 'src/guard/authortization/authortization.guard';
 
+@Roles(Role.Admin)
+@UseGuards(AuthenticationGuard, AuthortizationGuard)
 @Controller('users')
 export class UsersController {
   constructor(
     private userService: UsersService,
     private cartService: CartService,
-    private firebaseService: FirebaseService,
   ) {}
 
   @Get()
   async getAllUsers(): Promise<IResponse<User[], undefined>> {
-    // const users = await this.userService.findAllUsers();
-    const users = await this.firebaseService.getUsers();
+    const users = await this.userService.findAllUsers();
     return { message: 'Find All users', data: users };
   }
 

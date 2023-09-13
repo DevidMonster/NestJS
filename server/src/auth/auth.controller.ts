@@ -14,14 +14,12 @@ import { SignInInput } from './dto/signin.input';
 import { SignUpInput } from './dto/singup.input';
 import { AuthService } from './auth.service';
 import { CartService } from 'src/cart/cart.service';
-import { FirebaseService } from 'src/firebase/firebase.service';
 
 @Controller('auth')
 export class AuthController {
   constructor(
     private authService: AuthService,
     private cartService: CartService,
-    private firebaseService: FirebaseService,
   ) {}
 
   @Get('token')
@@ -37,19 +35,15 @@ export class AuthController {
   @Post('register')
   @UsePipes(ValidationPipe)
   async SignUp(@Body() userInfo: SignUpInput, @Res() res: Response) {
-    // const response = await this.authService.register(userInfo, res);
-    // const user = response.data;
-    // await this.cartService.create({ userId: user.id });
-    // return res.status(200).json(response);
-    const userResponse = await this.firebaseService.userSignUp(userInfo);
-    return res.status(200).json(userResponse);
+    const response = await this.authService.register(userInfo, res);
+    const user = response.data;
+    await this.cartService.create({ userId: user.id });
+    return res.status(200).json(response);
   }
 
   @Post('login')
   @UsePipes(ValidationPipe)
   async SignIn(@Body() userInfo: SignInInput, @Res() res: Response) {
-    // return await this.authService.login(userInfo, res);
-    const user = await this.firebaseService.userLogin(userInfo);
-    return res.status(200).json(user);
+    return await this.authService.login(userInfo, res);
   }
 }

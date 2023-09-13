@@ -19,6 +19,7 @@ function EditUser() {
                 userName: data.data?.userName,
                 email: data.data?.email,
                 phoneNumber: data.data?.phoneNumber,
+                address: data.data?.address,
                 role: data.data?.role,
                 state: data.data?.state
             })
@@ -90,6 +91,13 @@ function EditUser() {
                     hasFeedback
                     label="Phone"
                     name="phoneNumber"
+                >
+                    <Input />
+                </Form.Item>
+                <Form.Item
+                    hasFeedback
+                    label="Address"
+                    name="address"
                 >
                     <Input />
                 </Form.Item>

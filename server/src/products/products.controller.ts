@@ -10,12 +10,17 @@ import {
   Patch,
   Query,
   Delete,
+  UseGuards,
 } from '@nestjs/common';
 import { ProductsService } from './products.service';
 import { IResponse } from 'src/types/response';
 import { Product } from './entities/product.entity';
 import { CreateProductInput } from './dto/create-product.input';
 import { UpdateProductInput } from './dto/update-product.input';
+import { Roles } from 'src/decorators/roles/roles.decorator';
+import { Role } from 'src/types/role.enum';
+import { AuthenticationGuard } from 'src/guard/authentication/authentication.guard';
+import { AuthortizationGuard } from 'src/guard/authortization/authortization.guard';
 
 @Controller('products')
 export class ProductsController {
@@ -41,6 +46,8 @@ export class ProductsController {
     return { message: 'Find Product successfully', data: product };
   }
 
+  @Roles(Role.Admin)
+  @UseGuards(AuthenticationGuard, AuthortizationGuard)
   @Post()
   @UsePipes(ValidationPipe)
   async createProduct(
@@ -50,6 +57,8 @@ export class ProductsController {
     return { message: 'Product created', data: product };
   }
 
+  @Roles(Role.Admin)
+  @UseGuards(AuthenticationGuard, AuthortizationGuard)
   @Patch(':id')
   @UsePipes(ValidationPipe)
   async updateProduct(
@@ -60,6 +69,8 @@ export class ProductsController {
     return { message: 'Product updated successfully', data: product };
   }
 
+  @Roles(Role.Admin)
+  @UseGuards(AuthenticationGuard, AuthortizationGuard)
   @Delete(':id')
   async deleteProduct(
     @Param('id', ParseIntPipe) id: number,

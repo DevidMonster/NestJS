@@ -1,18 +1,21 @@
 import { UploadOutlined } from "@ant-design/icons";
-import { Button, Form, Input, InputNumber, Select, Upload, message } from "antd";
+import { Button, Form, Input, InputNumber, Select, Spin, Upload, message } from "antd";
 import { useEffect, useState } from "react";
 import { useNavigate, useParams } from "react-router-dom";
 import TextEditor from "../../../components/TextEditor";
-import { useCreateProductMutation, useFetchOneQuery, useUpdateProductMutation } from "../../../services/product.service";
+import { useFetchOneQuery, useUpdateProductMutation } from "../../../services/product.service";
 import { useFetchAllCategoriesQuery } from "../../../services/category.service";
+import { useUploadFileMutation } from "../../../services/upload.service";
 const { Option } = Select
 function EditProduct() {
     const { id } = useParams()
     const { data, isLoading: isLoad } = useFetchOneQuery(id)
     const [updateProduct] = useUpdateProductMutation()
+    const [uploadImage] = useUploadFileMutation()
     const { data: categories, isLoading } = useFetchAllCategoriesQuery('?_full')
     const navigate = useNavigate()
     const [fileList, setFileList] = useState([])
+    const [loading, setLoading] = useState(false)
     const [form] = Form.useForm()
 
     useEffect(() => {
@@ -52,10 +55,29 @@ function EditProduct() {
     }
 
 
-    const onFinish = (values) => {
-        updateProduct({id, product: { ...values, image: fileList.length > 0 ? fileList[0].thumbUrl : (data?.data.image ? data?.data.image : undefined) }});
+    const onFinish = async (values) => {
+        let imageUrl;
+        setLoading(true)
+        if (fileList.length > 0) {
+          const formData = new FormData();
+          formData.append("image", fileList[0].originFileObj); // Lấy file gốc từ fileList
+    
+          try {
+            const response = await uploadImage(formData);
+            imageUrl = response.data.imageUrl;
+          } catch (error) {
+            console.error("Error uploading image:", error);
+          }
+        }
+        await updateProduct({id, product: { ...values, image: fileList.length > 0 ? imageUrl : (data?.data.image ? data?.data.image : undefined) }}).unwrap();
+        setLoading(false)    
         navigate('/admin/products')
     };
+
+    if(loading) {
+        return <Spin />
+    }
+
     return <div>
         <h1>Create New</h1>
         <Form

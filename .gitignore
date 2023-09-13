@@ -1,5 +1,9 @@
+# Client
 client/.env
 client/node_modules/
+
+# Server
 server/.env
-# server/src/serviceAccountKey.json
+server/src/serviceAccountKey.json
 server/node_modules/
+server/uploads/

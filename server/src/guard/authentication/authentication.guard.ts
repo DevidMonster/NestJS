@@ -16,7 +16,9 @@ export class AuthenticationGuard implements CanActivate {
     try {
       const token = request.cookies?.jwt;
       if (!token) {
-        throw new UnauthorizedException();
+        throw new UnauthorizedException(
+          'Logged in as a user without authorization credentials',
+        );
       }
 
       const { id } = jwt.verify(token, process.env.SERECT_KEY) as {
@@ -25,14 +27,14 @@ export class AuthenticationGuard implements CanActivate {
 
       const user = await this.userService.findOneUser(id);
       if (!user) {
-        throw new UnauthorizedException();
+        throw new UnauthorizedException('user not found');
       }
 
       request.user = user;
       // console.log(request.user);
       return true;
     } catch (error) {
-      throw new UnauthorizedException();
+      throw new UnauthorizedException(error.message);
     }
 
     return true;

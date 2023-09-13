@@ -80,6 +80,13 @@ function AddUser() {
                 <Input />
             </Form.Item>
             <Form.Item
+                hasFeedback
+                label="Address"
+                name="address"
+            >
+                <Input />
+            </Form.Item>
+            <Form.Item
                 label="Password"
                 name="passWord"
                 rules={[{ required: true, message: 'Please input your password!' }, { min: 6, message: 'The password must be at least 6 characters long!' }]}

@@ -24,7 +24,7 @@ export class AuthortizationGuard implements CanActivate {
 
     // console.log(request.user, requiredRoles);
     const role = request.user.role;
-    if (requiredRoles !== role) return false;
+    if (role && requiredRoles !== role) return false;
 
     return true;
   }

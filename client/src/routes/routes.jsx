@@ -25,6 +25,9 @@ import AddCategory from '../Pages/admin/category/AddCategory';
 import EditCategory from '../Pages/admin/category/EditCategory';
 import CartPage from '../Pages/CartPage';
 import OrderPage from '../Pages/OrderPage';
+import OrderDetail from '../Pages/OrderDetail';
+import OrderList from '../Pages/admin/order/OrderList';
+import OrderManagement from '../Pages/admin/order/OrderManagement';
 
 const router = createBrowserRouter([
     {path: '/', element: <DefaultLayout/>, children: [
@@ -34,6 +37,7 @@ const router = createBrowserRouter([
         {path: '/product/:id', element: <ProductDetail/>},
         {path: '/post', element: <PostsPage/>},
         {path: '/orders/:id', element: <OrderPage/>},
+        {path: '/order_detail/:id', element: <OrderDetail/>},
         {path: '/post/:id', element: <PostDetail/>},
         {path: '/login', element: <LoginPage/>},
         {path: '/signup', element: <SignupPage/>},
@@ -50,6 +54,8 @@ const router = createBrowserRouter([
         {path: 'posts', element: <PostList/>},
         {path: 'posts/add', element: <AddPost/>},
         {path: 'posts/edit/:id', element: <EditPost/>},
+        {path: 'orders', element: <OrderList/>},
+        {path: 'orders/:id', element: <OrderManagement/>},
         {path: 'users', element: <UserList/>},
         {path: 'users/add', element: <AddUser/>},
         {path: 'users/edit/:id', element: <EditUser/>},

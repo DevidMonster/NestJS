@@ -4,13 +4,14 @@ import {
     MenuFoldOutlined,
     MenuUnfoldOutlined,
     PieChartOutlined,
+    CreditCardOutlined,
     UserOutlined,
     SkinOutlined,
     CommentOutlined,
     FolderOutlined
 } from '@ant-design/icons';
 import { Breadcrumb, Button, Layout, Menu, theme } from 'antd';
-import { Link, NavLink, Outlet, useNavigate } from 'react-router-dom';
+import { NavLink, Outlet, useNavigate } from 'react-router-dom';
 const { Header, Content, Footer, Sider } = Layout;
 
 function getItem(
@@ -34,19 +35,20 @@ const items = [
         getItem(<NavLink to={'/admin/products/stock'}>Stock</NavLink>, 'sub2'),
         getItem(<NavLink to={'/admin/products/add'}>Add</NavLink>, 'sub3'),
     ]),
-    getItem('Posts', '3', <DesktopOutlined />, [
+    getItem(<NavLink to={'/admin/orders'}>Order List</NavLink>, '3', <CreditCardOutlined />),
+    getItem('Posts', '4', <DesktopOutlined />, [
         getItem(<NavLink to={'/admin/posts'}>Post List</NavLink>, 'sub4'),
         getItem(<NavLink to={'/admin/posts/add'}>Add</NavLink>, 'sub5'),
     ]),
-    getItem('User', '4', <UserOutlined />, [
+    getItem('User', '5', <UserOutlined />, [
         getItem(<NavLink to={'/admin/users'}>Users</NavLink>, 'sub6'),
         getItem(<NavLink to={'/admin/users/add'}>Add</NavLink>, 'sub7'),
     ]),
-    getItem('Category', '5', <FolderOutlined />, [
+    getItem('Category', '6', <FolderOutlined />, [
         getItem(<NavLink to={'/admin/categories'}>Categories</NavLink>, 'sub8'),
         getItem(<NavLink to={'/admin/categories/add'}>Add</NavLink>, 'sub9'),
     ]),
-    getItem(<NavLink to={'/admin/comments'}>Comments</NavLink>, '6', <CommentOutlined />)
+    getItem(<NavLink to={'/admin/comments'}>Comments</NavLink>, '7', <CommentOutlined />)
 ];
 
 const AdminLayout = () => {

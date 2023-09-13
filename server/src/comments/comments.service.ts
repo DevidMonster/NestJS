@@ -63,16 +63,6 @@ export class CommentsService {
     if (!comment)
       throw new HttpException('No comment found', HttpStatus.NOT_FOUND);
 
-    const product = await this.product.findOne({
-      where: { id: comment?.product?.id },
-      relations: { comments: true },
-    });
-
-    if (product)
-      product.comments = product.comments.filter((cmt) => cmt.id !== id);
-
-    await this.product.save(product);
-
     await this.comment.remove(comment);
 
     return comment;

@@ -2,7 +2,6 @@ import { Resolver, Query, Mutation, Args, Int } from '@nestjs/graphql';
 import { RateService } from './rate.service';
 import { Rate } from './entities/rate.entity';
 import { CreateRateInput } from './dto/create-rate.input';
-import { UpdateRateInput } from './dto/update-rate.input';
 
 @Resolver(() => Rate)
 export class RateResolver {
@@ -18,14 +17,14 @@ export class RateResolver {
     return this.rateService.findAll();
   }
 
+  @Query(() => [Rate], { name: 'rate' })
+  findByProductId(@Args('id', { type: () => Int }) id: number) {
+    return this.rateService.findByProduct(id);
+  }
+
   @Query(() => Rate, { name: 'rate' })
   findOne(@Args('id', { type: () => Int }) id: number) {
     return this.rateService.findOne(id);
-  }
-
-  @Mutation(() => Rate)
-  updateRate(@Args('updateRateInput') updateRateInput: UpdateRateInput) {
-    return this.rateService.update(updateRateInput.id, updateRateInput);
   }
 
   @Mutation(() => Rate)

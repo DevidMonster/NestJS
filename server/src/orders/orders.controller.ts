@@ -9,6 +9,7 @@ import {
   ParseIntPipe,
   UsePipes,
   ValidationPipe,
+  UseGuards,
 } from '@nestjs/common';
 import { OrdersService } from './orders.service';
 import { IResponse } from 'src/types/response';
@@ -16,6 +17,10 @@ import { Order } from './entities/order.entity';
 import { CreateOrderInput } from './dto/create-order.input';
 import { UpdateOrderInput } from './dto/update-order.input';
 import { OrderDetailsService } from 'src/order-details/order-details.service';
+import { Roles } from 'src/decorators/roles/roles.decorator';
+import { Role } from 'src/types/role.enum';
+import { AuthenticationGuard } from 'src/guard/authentication/authentication.guard';
+import { AuthortizationGuard } from 'src/guard/authortization/authortization.guard';
 
 @Controller('orders')
 export class OrdersController {
@@ -24,12 +29,15 @@ export class OrdersController {
     private orderDetailService: OrderDetailsService,
   ) {}
 
+  @Roles(Role.Admin)
+  @UseGuards(AuthenticationGuard, AuthortizationGuard)
   @Get()
   async getOrders(): Promise<IResponse<Order[], undefined>> {
     const orders = await this.orderService.findAll();
     return { message: 'Orders found', data: orders };
   }
 
+  @UseGuards(AuthenticationGuard)
   @Get('/user/:id')
   async getOrderByUser(
     @Param('id', ParseIntPipe) userId: number,
@@ -39,6 +47,7 @@ export class OrdersController {
     return { message: 'Orders found', data: orders };
   }
 
+  @UseGuards(AuthenticationGuard)
   @Get(':id')
   async getOrdersById(
     @Param('id', ParseIntPipe) id: number,
@@ -47,6 +56,7 @@ export class OrdersController {
     return { message: 'Order found', data: order };
   }
 
+  @UseGuards(AuthenticationGuard)
   @Post()
   @UsePipes(ValidationPipe)
   async createOrder(
@@ -62,6 +72,7 @@ export class OrdersController {
     return { message: 'Order created', data: order };
   }
 
+  @UseGuards(AuthenticationGuard, AuthortizationGuard)
   @Patch(':id')
   @UsePipes(ValidationPipe)
   async updateStatusOrder(
@@ -73,6 +84,8 @@ export class OrdersController {
     return { message: 'Order updated', data: order };
   }
 
+  @Roles(Role.Admin)
+  @UseGuards(AuthenticationGuard, AuthortizationGuard)
   @Delete(':id')
   async deleteOrder(
     @Param('id', ParseIntPipe) id: number,

@@ -1,4 +1,9 @@
-import { HttpException, HttpStatus, Injectable } from '@nestjs/common';
+import {
+  HttpException,
+  HttpStatus,
+  Injectable,
+  UnauthorizedException,
+} from '@nestjs/common';
 import { Repository } from 'typeorm';
 import { InjectRepository } from '@nestjs/typeorm';
 import { User } from 'src/users/entities/user.entity';
@@ -21,7 +26,10 @@ export class AuthService {
 
   async getToken(req: Request): Promise<{ accessToken: string }> {
     const token = req.cookies?.jwt;
-    return { accessToken: token || '' };
+
+    if (!token) throw new UnauthorizedException('Tokne timed out');
+
+    return { accessToken: token };
   }
 
   async clearToken(req: Request, res: Response): Promise<Response> {
