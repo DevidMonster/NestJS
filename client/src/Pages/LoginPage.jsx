@@ -5,29 +5,30 @@ import { useEffect } from 'react';
 import { useDispatch } from 'react-redux';
 import { useLoginMutation } from '../services/auth.service';
 import { saveTokenAndUser } from '../slices/authSlice';
+import { GoogleOutlined } from '@ant-design/icons';
 
 const LoginPage = () => {
     const navigate = useNavigate()
     const dispatch = useDispatch()
-    const [login, {data, isLoading, error}] = useLoginMutation()
+    const [login, { data, isLoading, error }] = useLoginMutation()
 
     useEffect(() => {
         console.log(error)
-        if(error?.data?.error) {
+        if (error?.data?.error) {
             message.error(error?.data?.error)
         }
     }, [error])
 
     useEffect(() => {
-        if(data?.error) {
+        if (data?.error) {
             return alert(data.error)
         }
-        if(!isLoading && data) {
+        if (!isLoading && data) {
             dispatch(saveTokenAndUser({ token: data.accessToken, user: data.data }))
-            if(data.data?.role == 'admin') return navigate('/admin')
+            if (data.data?.role == 'admin') return navigate('/admin')
             navigate('/')
         }
-        
+
     }, [data, isLoading])
 
     const onFinish = (values) => {
@@ -69,6 +70,16 @@ const LoginPage = () => {
                         <Button type="primary" htmlType="submit">
                             Login
                         </Button>
+                        <p style={{ textAlign: 'center' }}>Or</p>
+                        <Link to={'http://localhost:8000/auth/google/login'}>
+                            <Button
+                                htmlType='button'
+                                type="primary"
+                                icon={<GoogleOutlined />}
+                            >
+                                Login with Google
+                            </Button>
+                        </Link>
                     </Form.Item>
                     <Form.Item style={{ textAlign: "center" }}>
                         <p>Do not have an account?<Link to="/signup"> Register here</Link></p>

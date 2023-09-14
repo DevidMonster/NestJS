@@ -4,18 +4,19 @@ import { useEffect } from "react"
 import { useDispatch } from 'react-redux';
 import { useSingupMutation } from '../services/auth.service';
 import { saveTokenAndUser } from '../slices/authSlice';
+import { GoogleOutlined } from '@ant-design/icons';
 
 const SignupPage = () => {
     const navigate = useNavigate()
     const dispatch = useDispatch()
-    const [signup, {data, isLoading}] = useSingupMutation()
+    const [signup, { data, isLoading }] = useSingupMutation()
 
 
     useEffect(() => {
-        if(data?.error) {
+        if (data?.error) {
             return alert(data.error)
         }
-        if(!isLoading && data) {
+        if (!isLoading && data) {
             dispatch(saveTokenAndUser({ token: data.accessToken, user: data.data }))
             navigate('/')
         }
@@ -23,8 +24,8 @@ const SignupPage = () => {
 
     const onFinish = (values) => {
         try {
-            signup({...values, avatar: "https://res.cloudinary.com/dpwto5xyv/image/upload/v1692587346/learnECMAS/t%E1%BA%A3i_xu%E1%BB%91ng_zdwt9p.png"})
-            return 
+            signup({ ...values, avatar: "https://res.cloudinary.com/dpwto5xyv/image/upload/v1692587346/learnECMAS/t%E1%BA%A3i_xu%E1%BB%91ng_zdwt9p.png" })
+            return
         } catch (error) {
             alert('signup failed')
         }
@@ -105,6 +106,16 @@ const SignupPage = () => {
                         <Button type="primary" htmlType="submit">
                             Register
                         </Button>
+                        <p style={{ textAlign: 'center' }}>Or</p>
+                        <Link to={'http://localhost:8000/auth/google/login'}>
+                            <Button
+                                htmlType='button'
+                                type="primary"
+                                icon={<GoogleOutlined />}
+                            >
+                                Login with Google
+                            </Button>
+                        </Link>
                     </Form.Item>
                     <Form.Item style={{ textAlign: "center" }} >
                         <p>Do you already have an account?  <Link to="/login"> Login here</Link></p>

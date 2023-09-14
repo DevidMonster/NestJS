@@ -12,24 +12,58 @@ import * as jwt from 'jsonwebtoken';
 import { Request, Response } from 'express';
 import { SignUpInput } from './dto/singup.input';
 import { SignInInput } from './dto/signin.input';
+import { UserDetails } from 'src/types/userDetails';
+import { CartService } from 'src/cart/cart.service';
 
 @Injectable()
 export class AuthService {
-  constructor(@InjectRepository(User) private user: Repository<User>) {}
+  constructor(
+    @InjectRepository(User) private user: Repository<User>,
+    private cartService: CartService,
+  ) {}
 
-  private createToken(id: string | number): string {
+  async validateUser(details: UserDetails): Promise<User> {
+    const user = await this.user.findOne({ where: { email: details.email } });
+
+    if (user) return user;
+
+    // Tạo mật khẩu ngẫu nhiên cho người dùng
+    const randomPassword = Math.random().toString(36).slice(-8);
+    const hashedPassword = await bcrypt.hash(randomPassword, 10);
+
+    const newUser = this.user.create({
+      email: details.email,
+      userName: details.displayName,
+      passWord: hashedPassword,
+    });
+
+    const userResult = await this.user.save(newUser);
+
+    //tạo giỏ hàng cho người dùng
+    await this.cartService.create({ userId: userResult.id });
+
+    return userResult;
+  }
+
+  createToken(id: string | number): string {
     const token = jwt.sign({ id }, process.env.SERECT_KEY, {
       expiresIn: '1d',
     });
     return token;
   }
 
-  async getToken(req: Request): Promise<{ accessToken: string }> {
+  async getToken(req: Request): Promise<{ accessToken: string; data: User }> {
     const token = req.cookies?.jwt;
 
     if (!token) throw new UnauthorizedException('Tokne timed out');
 
-    return { accessToken: token };
+    const { id } = jwt.verify(token, process.env.SERECT_KEY) as { id: number };
+
+    const user = await this.user.findOne({ where: { id } });
+
+    delete user.passWord;
+
+    return { accessToken: token, data: user };
   }
 
   async clearToken(req: Request, res: Response): Promise<Response> {
@@ -122,7 +156,7 @@ export class AuthService {
     });
   }
 
-  private setTokenCookie(res: Response, token: string) {
+  setTokenCookie(res: Response, token: string) {
     res.cookie('jwt', token, {
       httpOnly: true,
       expires: new Date(Date.now() + 24 * 60 * 60 * 1000), // 1 day

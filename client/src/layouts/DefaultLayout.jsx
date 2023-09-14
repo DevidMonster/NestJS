@@ -10,9 +10,8 @@ function DefaultLayout() {
 
     const dispatch = useDispatch()
     useEffect(() => {
-        const user = localStorage.getItem('auth') ? JSON.parse(localStorage.getItem('auth')) : {}
-        if(!isLoading && data?.accessToken && user) {
-            dispatch(saveTokenAndUser({ user, token: data.accessToken }))
+        if(!isLoading && data?.accessToken) {
+            dispatch(saveTokenAndUser({ user: data.data, token: data.accessToken }))
         }
         if(!isLoading && error?.data?.error) { 
             dispatch(deleteTokenAndUser())

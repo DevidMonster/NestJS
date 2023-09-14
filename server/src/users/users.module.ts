@@ -27,7 +27,21 @@ import { Comment } from 'src/comments/entities/comment.entity';
     ]),
   ],
   controllers: [UsersController],
-  providers: [UsersResolver, UsersService, CartService],
-  exports: [UsersService],
+  providers: [
+    UsersResolver,
+    UsersService,
+    CartService,
+    {
+      provide: 'USER_SERVICE',
+      useClass: UsersService,
+    },
+  ],
+  exports: [
+    UsersService,
+    {
+      provide: 'USER_SERVICE',
+      useClass: UsersService,
+    },
+  ],
 })
 export class UsersModule {}

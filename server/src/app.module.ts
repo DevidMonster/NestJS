@@ -27,6 +27,7 @@ import { FirebaseService } from './firebase/firebase.service';
 import { FirebaseController } from './firebase/firebase.controller';
 import { MulterModule } from '@nestjs/platform-express';
 import { Rate } from './rate/entities/rate.entity';
+import { PassportModule } from '@nestjs/passport';
 
 @Module({
   imports: [
@@ -62,6 +63,7 @@ import { Rate } from './rate/entities/rate.entity';
       driver: ApolloDriver,
       autoSchemaFile: 'schema.gql',
     }),
+    PassportModule.register({ session: true }),
     ProductsModule,
     UsersModule,
     AuthModule,
