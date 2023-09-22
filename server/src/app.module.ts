@@ -28,9 +28,14 @@ import { FirebaseController } from './firebase/firebase.controller';
 import { MulterModule } from '@nestjs/platform-express';
 import { Rate } from './rate/entities/rate.entity';
 import { PassportModule } from '@nestjs/passport';
+import { CacheModule } from '@nestjs/cache-manager';
+import { CacheService } from './cache/cache.service';
 
 @Module({
   imports: [
+    CacheModule.register({
+      isGlobal: true,
+    }),
     ConfigModule.forRoot({
       envFilePath: '.env',
     }),
@@ -75,9 +80,10 @@ import { PassportModule } from '@nestjs/passport';
     OrdersModule,
     OrderDetailsModule,
     CartItemsModule,
+    TypeOrmModule.forFeature([Product]),
   ],
   controllers: [FirebaseController],
-  providers: [FirebaseService],
-  exports: [FirebaseService],
+  providers: [FirebaseService, CacheService],
+  exports: [FirebaseService, CacheService],
 })
 export class AppModule {}

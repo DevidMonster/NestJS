@@ -43,7 +43,7 @@ export class CartService {
       .leftJoinAndSelect('cart.cartItem', 'cartItem')
       .leftJoinAndSelect('cart.user', 'user')
       .leftJoinAndSelect('cartItem.product', 'product')
-      .where('cart.id = :id', { id })
+      .where('cart.user.id = :id', { id })
       .getOne();
   }
 

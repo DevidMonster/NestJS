@@ -9,6 +9,9 @@ import {
   UsePipes,
   ValidationPipe,
   UseGuards,
+  Query,
+  UseInterceptors,
+  ClassSerializerInterceptor,
 } from '@nestjs/common';
 import { UsersService } from './users.service';
 import { IResponse } from 'src/types/response';
@@ -21,6 +24,7 @@ import { Role } from 'src/types/role.enum';
 import { AuthenticationGuard } from 'src/guard/authentication/authentication.guard';
 import { AuthortizationGuard } from 'src/guard/authortization/authortization.guard';
 
+@UseInterceptors(ClassSerializerInterceptor)
 @Roles(Role.Admin)
 @UseGuards(AuthenticationGuard, AuthortizationGuard)
 @Controller('users')
@@ -31,8 +35,11 @@ export class UsersController {
   ) {}
 
   @Get()
-  async getAllUsers(): Promise<IResponse<User[], undefined>> {
-    const users = await this.userService.findAllUsers();
+  async getAllUsers(
+    @Query('_page', ParseIntPipe) page: number,
+    @Query('_pageSize', ParseIntPipe) pageSize: number,
+  ): Promise<IResponse<User[], undefined>> {
+    const users = await this.userService.findAllUsers(page, pageSize);
     return { message: 'Find All users', data: users };
   }
 

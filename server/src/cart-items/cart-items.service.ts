@@ -32,7 +32,7 @@ export class CartItemsService {
 
     if (item) {
       await this.cartItem.update(item.id, {
-        quantity: item.quantity + createCartItemInput.quantity,
+        quantity: +createCartItemInput.quantity + item.quantity,
       });
       return item;
     }

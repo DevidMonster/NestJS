@@ -20,24 +20,30 @@ function ProductDetail() {
         setSegmented(value)
     }
 
-    const addItemToCart = async (id) => {
+    const addItemToCart = async () => {
         try {
-            const response = await addItem({
-                cartId: user.cart.id,
-                productId: id,
-                quantity
-            })
+            if (user?.id) {
 
-            if (response.data) {
-                // Thêm sản phẩm thành công, hiển thị thông báo thành công
-                message.success('Thêm sản phẩm vào giỏ hàng thành công');
+                const response = await addItem({
+                    cartId: user.cart.id,
+                    productId: id,
+                    quantity
+                })
+
+
+                if (response.data) {
+                    // Thêm sản phẩm thành công, hiển thị thông báo thành công
+                    message.success('Thêm sản phẩm vào giỏ hàng thành công');
+                } else {
+                    // Thất bại, hiển thị thông báo lỗi
+                    message.error(response?.error.data.message);
+                }
             } else {
-                // Thất bại, hiển thị thông báo lỗi
-                message.error('Thêm sản phẩm vào giỏ hàng thất bại');
+                message.error("You need to login to add item to your cart");
             }
         } catch (error) {
             // Xử lý lỗi nếu có
-            message.error('Lỗi khi thêm sản phẩm vào giỏ hàng');
+            message.error(error.message);
         }
 
     }
@@ -62,7 +68,7 @@ function ProductDetail() {
         if (data?.error) {
             navigate('/')
         }
-    }, [data])
+    }, [data, navigate])
     return <div>
         {!isLoading && data?.data ? (
             <div style={{ padding: '50px' }}>
@@ -87,15 +93,15 @@ function ProductDetail() {
                     footer={<></>}
                 >
                     <Divider orientation="left" orientationMargin="0"><h2>Description</h2></Divider>
-                    <p dangerouslySetInnerHTML={{ __html:  data.data?.description}}>
+                    <p dangerouslySetInnerHTML={{ __html: data.data?.description }}>
                     </p>
                 </List>
                 <div>
                     <Segmented style={{ margin: '10px 0' }} value={segmented} onChange={handleChange} options={['Comments', 'Rates']} />
-                    {segmented === 'Comments' ? 
+                    {segmented === 'Comments' ?
                         <ProductComment productId={data?.data.id}></ProductComment>
-                    :
-                        <ProductRate productId={data?.data.id}></ProductRate>    
+                        :
+                        <ProductRate productId={data?.data.id}></ProductRate>
                     }
                 </div>
 

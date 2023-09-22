@@ -8,7 +8,7 @@ import { CreateOrderInput } from './dto/create-order.input';
 import { UpdateOrderInput } from './dto/update-order.input';
 import { Order } from './entities/order.entity';
 import { InjectRepository } from '@nestjs/typeorm';
-import { Repository } from 'typeorm';
+import { FindManyOptions, Repository } from 'typeorm';
 import { User } from 'src/users/entities/user.entity';
 
 @Injectable()
@@ -34,8 +34,18 @@ export class OrdersService {
     return await this.order.save(order);
   }
 
-  async findAll(): Promise<Order[]> {
-    const orders = await this.order.find({ relations: { orderDetails: true } });
+  async findAll(page: number = 1, pageSize: number = 1000): Promise<Order[]> {
+    const options: FindManyOptions<Order> = {
+      relations: ['orderDetails'], // Chọn các relations cần thiết
+    };
+
+    // Thêm phân trang nếu cung cấp page và pageSize
+    if (page && pageSize) {
+      options.skip = (page - 1) * pageSize;
+      options.take = pageSize;
+    }
+
+    const orders = await this.order.find(options);
 
     if (!orders) throw new NotFoundException('No order found');
 

@@ -23,7 +23,10 @@ export class AuthService {
   ) {}
 
   async validateUser(details: UserDetails): Promise<User> {
-    const user = await this.user.findOne({ where: { email: details.email } });
+    const user = await this.user.findOne({
+      where: { email: details.email },
+      relations: { cart: true },
+    });
 
     if (user) return user;
 
@@ -37,10 +40,15 @@ export class AuthService {
       passWord: hashedPassword,
     });
 
-    const userResult = await this.user.save(newUser);
+    const userCreated = await this.user.save(newUser);
 
     //tạo giỏ hàng cho người dùng
-    await this.cartService.create({ userId: userResult.id });
+    await this.cartService.create({ userId: userCreated.id });
+
+    const userResult = await this.user.findOne({
+      where: { id: userCreated.id },
+      relations: { cart: true },
+    });
 
     return userResult;
   }
@@ -59,9 +67,10 @@ export class AuthService {
 
     const { id } = jwt.verify(token, process.env.SERECT_KEY) as { id: number };
 
-    const user = await this.user.findOne({ where: { id } });
-
-    delete user.passWord;
+    const user = await this.user.findOne({
+      where: { id },
+      relations: { cart: true },
+    });
 
     return { accessToken: token, data: user };
   }
@@ -112,8 +121,6 @@ export class AuthService {
       relations: { cart: true },
     });
 
-    delete user.passWord;
-
     this.setTokenCookie(res, token);
 
     return {
@@ -144,8 +151,6 @@ export class AuthService {
       throw new HttpException('Passwords do not match', HttpStatus.BAD_REQUEST);
 
     const token = this.createToken(user.id);
-
-    delete user.passWord;
 
     this.setTokenCookie(res, token);
 

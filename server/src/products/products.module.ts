@@ -11,6 +11,11 @@ import { Order } from 'src/orders/entities/order.entity';
 import { Rate } from 'src/rate/entities/rate.entity';
 import { User } from 'src/users/entities/user.entity';
 import { UsersService } from 'src/users/users.service';
+import { CartItem } from 'src/cart-items/entities/cart-item.entity';
+import { CacheService } from 'src/cache/cache.service';
+import { CartItemsService } from 'src/cart-items/cart-items.service';
+import { Cart } from 'src/cart/entities/cart.entity';
+import { CartService } from 'src/cart/cart.service';
 
 @Module({
   imports: [
@@ -21,10 +26,19 @@ import { UsersService } from 'src/users/users.service';
       OrderDetail,
       Order,
       Rate,
+      CartItem,
+      Cart,
       User,
     ]),
   ],
-  providers: [ProductsResolver, ProductsService, UsersService],
+  providers: [
+    ProductsResolver,
+    ProductsService,
+    UsersService,
+    CartService,
+    CacheService,
+    CartItemsService,
+  ],
   controllers: [ProductsController],
   exports: [ProductsService],
 })

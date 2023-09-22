@@ -1,3 +1,4 @@
+import { CacheInterceptor } from '@nestjs/cache-manager';
 import {
   Body,
   Controller,
@@ -11,6 +12,7 @@ import {
   Query,
   Delete,
   UseGuards,
+  UseInterceptors,
 } from '@nestjs/common';
 import { ProductsService } from './products.service';
 import { IResponse } from 'src/types/response';
@@ -21,19 +23,27 @@ import { Roles } from 'src/decorators/roles/roles.decorator';
 import { Role } from 'src/types/role.enum';
 import { AuthenticationGuard } from 'src/guard/authentication/authentication.guard';
 import { AuthortizationGuard } from 'src/guard/authortization/authortization.guard';
+import { ApiQuery } from '@nestjs/swagger';
 
+@UseInterceptors(CacheInterceptor)
 @Controller('products')
 export class ProductsController {
   constructor(private productService: ProductsService) {}
 
   @Get()
+  @ApiQuery({ name: '_category', required: false })
+  @ApiQuery({ name: '_type', required: false })
   async getAll(
     @Query('_type') type: string,
     @Query('_category') cate?: string,
+    @Query('_page') page?: number,
+    @Query('_pageSize') pageSize?: number,
   ): Promise<IResponse<Product[], undefined>> {
     const products = await this.productService.findAll(
-      type ? type : undefined,
-      cate ? cate : undefined,
+      type,
+      cate,
+      page,
+      pageSize,
     );
     return { message: 'Find Products successfully', data: products };
   }

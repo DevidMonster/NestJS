@@ -11,6 +11,7 @@ import {
   Delete,
   Body,
   UseGuards,
+  Query,
 } from '@nestjs/common';
 import { PostsService } from './posts.service';
 import { Post as PostEntity } from './entities/post.entity';
@@ -26,8 +27,11 @@ export class PostsController {
   constructor(private postService: PostsService) {}
 
   @Get()
-  async getAllPosts(): Promise<IResponse<PostEntity[], undefined>> {
-    const posts = await this.postService.findAll();
+  async getAllPosts(
+    @Query('_page', ParseIntPipe) page: number,
+    @Query('_pageSize', ParseIntPipe) pageSize: number,
+  ): Promise<IResponse<PostEntity[], undefined>> {
+    const posts = await this.postService.findAll(page, pageSize);
     return { message: 'Find Posts success', data: posts };
   }
 

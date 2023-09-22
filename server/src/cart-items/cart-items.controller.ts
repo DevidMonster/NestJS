@@ -10,6 +10,8 @@ import {
   UsePipes,
   ValidationPipe,
   UseGuards,
+  HttpException,
+  HttpStatus,
 } from '@nestjs/common';
 import { CartItemsService } from './cart-items.service';
 import { IResponse } from 'src/types/response';
@@ -17,10 +19,14 @@ import { CartItem } from './entities/cart-item.entity';
 import { CreateCartItemInput } from './dto/create-cart-item.input';
 import { UpdateCartItemInput } from './dto/update-cart-item.input';
 import { AuthenticationGuard } from 'src/guard/authentication/authentication.guard';
+import { ProductsService } from 'src/products/products.service';
 
 @Controller('cart-items')
 export class CartItemsController {
-  constructor(private cartItemService: CartItemsService) {}
+  constructor(
+    private cartItemService: CartItemsService,
+    private productService: ProductsService,
+  ) {}
 
   @UseGuards(AuthenticationGuard)
   @Get()
@@ -43,9 +49,21 @@ export class CartItemsController {
   @UsePipes(ValidationPipe)
   async createCartItem(
     @Body() rqData: CreateCartItemInput,
-  ): Promise<IResponse<CartItem, undefined>> {
-    const cartItem = await this.cartItemService.create(rqData);
-    return { message: 'Cart item created', data: cartItem };
+  ): Promise<IResponse<CartItem | undefined, undefined>> {
+    const isAvaliable = await this.productService.checkInventory(
+      rqData.cartId,
+      rqData.productId,
+      rqData.quantity,
+    );
+    if (isAvaliable) {
+      const cartItem = await this.cartItemService.create(rqData);
+      return { message: 'Cart item created', data: cartItem };
+    } else {
+      throw new HttpException(
+        'Product is out of stock',
+        HttpStatus.BAD_REQUEST,
+      );
+    }
   }
 
   @UseGuards(AuthenticationGuard)

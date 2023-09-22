@@ -13,6 +13,7 @@ import {
 import { Breadcrumb, Button, Layout, Menu, theme } from 'antd';
 import { NavLink, Outlet, useNavigate } from 'react-router-dom';
 const { Header, Content, Footer, Sider } = Layout;
+import { useSelector } from "react-redux";
 
 function getItem(
     label,
@@ -54,7 +55,7 @@ const items = [
 const AdminLayout = () => {
     const [collapsed, setCollapsed] = useState(false);
     const [history, setHistory] = useState('');
-    const user = JSON.parse(localStorage.getItem("auth"));
+    const user = useSelector(state => state.authReducer.user);
     const navigate = useNavigate()
 
     useEffect(() => {

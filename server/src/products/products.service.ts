@@ -4,26 +4,84 @@ import {
   Injectable,
   NotFoundException,
 } from '@nestjs/common';
-// import { CreateProductInput } from './dto/create-product.input';
-// import { UpdateProductInput } from './dto/update-product.input';
 import { Product } from './entities/product.entity';
 import { Comment } from 'src/comments/entities/comment.entity';
 import { InjectRepository } from '@nestjs/typeorm';
-import { Not, Repository } from 'typeorm';
+import { FindManyOptions, Not, Repository } from 'typeorm';
 import { CreateProductInput } from './dto/create-product.input';
 import { UpdateProductInput } from './dto/update-product.input';
 import { Category } from 'src/categories/entities/category.entity';
 import { Rate } from 'src/rate/entities/rate.entity';
+import { CacheService } from 'src/cache/cache.service';
+import { Cart } from 'src/cart/entities/cart.entity';
+import { CartItem } from 'src/cart-items/entities/cart-item.entity';
 
 @Injectable()
 export class ProductsService {
   constructor(
-    @InjectRepository(Product)
-    private readonly product: Repository<Product>,
     @InjectRepository(Comment) private comment: Repository<Comment>,
     @InjectRepository(Category) private category: Repository<Category>,
     @InjectRepository(Rate) private rate: Repository<Rate>,
+    @InjectRepository(Cart) private cart: Repository<Cart>,
+    @InjectRepository(CartItem) private cartItem: Repository<CartItem>,
+    @InjectRepository(Product) private product: Repository<Product>,
+    private readonly cacheService: CacheService,
   ) {}
+
+  async checkInventory(
+    cartId?: number,
+    productId?: number,
+    quantity?: number,
+  ): Promise<boolean> {
+    const currentInventory = await this.cacheService.get(
+      `inventory:${productId}`,
+    );
+    const cartItem = await this.cartItem.findOne({
+      where: { cart: { id: cartId }, product: { id: productId } },
+      relations: { product: true },
+    });
+
+    console.log(currentInventory?.quantity, cartItem?.quantity + quantity);
+
+    if (
+      currentInventory &&
+      currentInventory?.quantity >= (cartItem?.quantity || 0) + quantity
+    ) {
+      return true;
+    }
+
+    return false;
+  }
+
+  async checkPlaceOrder(cartId: number): Promise<boolean> {
+    const cart = await this.cart.findOne({
+      where: { id: cartId },
+      relations: { cartItem: { product: true } },
+    });
+
+    let isValid: boolean = true;
+
+    for (const cartItem of cart.cartItem) {
+      const productId = cartItem.product.id;
+      const quantity = cartItem.quantity;
+
+      const currentInventory = await this.cacheService.get(
+        `inventory:${productId}`,
+      );
+
+      if (currentInventory && currentInventory.quantity >= quantity) {
+        await this.cacheService.set(
+          `inventory:${productId}`,
+          currentInventory.quantity - quantity,
+          86400,
+        ); // Giảm tồn kho
+      } else {
+        isValid = false; // Sản phẩm không có đủ tồn kho
+      }
+    }
+
+    return isValid;
+  }
 
   async create(createProductInput: CreateProductInput): Promise<Product> {
     const category = await this.category.findOne({
@@ -36,29 +94,43 @@ export class ProductsService {
       category,
     });
 
+    await this.cacheService.set(
+      `inventory:${product.id}`,
+      JSON.stringify(product),
+      86400,
+    );
+
     return this.product.save(product);
   }
 
-  async findAll(type?: string, cate?: string): Promise<Product[]> {
-    const whereClause: Record<string, any> = {};
+  async findAll(
+    type?: string,
+    cate?: string,
+    page: number = 1,
+    pageSize: number = 1000,
+  ): Promise<Product[]> {
+    const options: FindManyOptions<Product> = {
+      relations: ['comments', 'rates', 'category'], // Chọn các relations cần thiết
+    };
 
-    // Nếu type được cung cấp và có giá trị 'out_of_stock', thêm điều kiện filter theo type
     if (type === 'out_of_stock') {
-      whereClause.category = { id: 1 }; // Sản phẩm trong danh mục mặc định (nằm trong kho)
+      options.where = { category: { id: 1 } }; // Sản phẩm trong danh mục mặc định (nằm trong kho)
     } else {
       // Sản phẩm không trong danh mục mặc định
-      whereClause.category = { id: Not(1) };
+      options.where = { category: { id: Not(1) } };
     }
 
-    // Nếu cate được cung cấp, thêm điều kiện filter theo category id
     if (cate) {
-      whereClause.category = { id: parseInt(cate) };
+      options.where = { category: { id: parseInt(cate) } };
     }
-    const products = await this.product.find({
-      where: whereClause,
-      relations: { comments: true, rates: true, category: true },
-    });
 
+    // Thêm phân trang nếu cung cấp page và pageSize
+    if (page && pageSize) {
+      options.skip = (page - 1) * pageSize;
+      options.take = pageSize;
+    }
+
+    const products = await this.product.find(options);
     return products;
   }
 
@@ -93,6 +165,12 @@ export class ProductsService {
       where: { id },
       relations: { comments: true, rates: true, category: true },
     });
+
+    await this.cacheService.set(
+      `inventory:${productUpdated.id}`,
+      JSON.stringify(productUpdated),
+      86400,
+    );
 
     return productUpdated;
   }
@@ -132,6 +210,8 @@ export class ProductsService {
 
       await this.category.save(category);
     }
+
+    await this.cacheService.del(`inventory:${product.id}`);
 
     await this.product.remove(product);
     return product;

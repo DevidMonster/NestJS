@@ -13,6 +13,7 @@ import { Comment } from 'src/comments/entities/comment.entity';
 import { Cart } from 'src/cart/entities/cart.entity';
 import { Order } from 'src/orders/entities/order.entity';
 import { Rate } from 'src/rate/entities/rate.entity';
+import { Exclude } from 'class-transformer';
 
 @Entity()
 @ObjectType()
@@ -29,6 +30,7 @@ export class User extends BaseEntity {
   @Column()
   email!: string;
 
+  @Exclude()
   @Field()
   @Column()
   passWord!: string;

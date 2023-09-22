@@ -11,6 +11,14 @@ import { Product } from 'src/products/entities/product.entity';
 import { User } from 'src/users/entities/user.entity';
 import { CartItem } from 'src/cart-items/entities/cart-item.entity';
 import { UsersService } from 'src/users/users.service';
+import { CacheService } from 'src/cache/cache.service';
+import { ProductsService } from 'src/products/products.service';
+import { CommentsService } from 'src/comments/comments.service';
+import { Comment } from 'src/comments/entities/comment.entity';
+import { Category } from 'src/categories/entities/category.entity';
+import { CategoriesService } from 'src/categories/categories.service';
+import { Rate } from 'src/rate/entities/rate.entity';
+import { RateService } from 'src/rate/rate.service';
 
 @Module({
   imports: [
@@ -21,9 +29,22 @@ import { UsersService } from 'src/users/users.service';
       Product,
       User,
       CartItem,
+      Comment,
+      Category,
+      Rate,
     ]),
   ],
-  providers: [OrdersResolver, OrdersService, OrderDetailsService, UsersService],
+  providers: [
+    OrdersResolver,
+    OrdersService,
+    OrderDetailsService,
+    ProductsService,
+    CommentsService,
+    UsersService,
+    CacheService,
+    CategoriesService,
+    RateService,
+  ],
   controllers: [OrdersController],
 })
 export class OrdersModule {}

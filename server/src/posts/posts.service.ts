@@ -3,7 +3,7 @@ import { CreatePostInput } from './dto/create-post.input';
 import { UpdatePostInput } from './dto/update-post.input';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Post } from './entities/post.entity';
-import { Repository } from 'typeorm';
+import { FindManyOptions, Repository } from 'typeorm';
 
 @Injectable()
 export class PostsService {
@@ -15,10 +15,18 @@ export class PostsService {
     return await this.post.save(post);
   }
 
-  async findAll(): Promise<Post[]> {
-    const posts = await this.post.find();
-    console.log(posts);
+  async findAll(page: number = 1, pageSize: number = 1000): Promise<Post[]> {
+    const options: FindManyOptions<Post> = {
+      relations: [''], // Chọn các relations cần thiết
+    };
 
+    // Thêm phân trang nếu cung cấp page và pageSize
+    if (page && pageSize) {
+      options.skip = (page - 1) * pageSize;
+      options.take = pageSize;
+    }
+
+    const posts = await this.post.find(options);
     return posts;
   }
 

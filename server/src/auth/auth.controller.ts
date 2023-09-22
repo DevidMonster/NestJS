@@ -9,6 +9,8 @@ import {
   UsePipes,
   ValidationPipe,
   UseGuards,
+  UseInterceptors,
+  ClassSerializerInterceptor,
 } from '@nestjs/common';
 import { Request, Response } from 'express';
 import { SignInInput } from './dto/signin.input';
@@ -17,6 +19,7 @@ import { AuthService } from './auth.service';
 import { CartService } from 'src/cart/cart.service';
 import { GoogleAuthGuard } from 'src/guard/google-auth/google-auth.guard';
 
+@UseInterceptors(ClassSerializerInterceptor)
 @Controller('auth')
 export class AuthController {
   constructor(
@@ -60,6 +63,6 @@ export class AuthController {
   async handleRedirect(@Req() req: Request, @Res() res: Response) {
     this.authService.setTokenCookie(res, req.user?.accessToken);
     // res.json({ message: 'Login success', ...req?.user });
-    res.redirect('http://localhost:5173/');
+    res.redirect('http://localhost:5174/');
   }
 }

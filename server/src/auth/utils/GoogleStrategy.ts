@@ -26,7 +26,7 @@ export class GoogleStrategy extends PassportStrategy(Strategy) {
       email: profile.emails[0].value,
       displayName: profile.displayName,
     });
-    delete user.passWord;
+    ;
     
     const token = this.authService.createToken(user.id)
     console.log(token);
